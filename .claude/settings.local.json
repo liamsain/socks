@@ -1,0 +1,14 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(Get-ChildItem -Path \"C:\\\\dev\\\\socks\" -Recurse -Force)",
+      "Bash(Select-Object -Property FullName, PSIsContainer)",
+      "Bash(Sort-Object FullName)",
+      "Skill(claude-in-chrome)",
+      "Bash(pkill -f \"http-server -p 8792\")",
+      "Bash(pkill -f \"http-server -p 8791\")",
+      "Bash(node --check js/screens.js)",
+      "Bash(node --check /c/dev/socks/js/shoe.js)"
+    ]
+  }
+}
