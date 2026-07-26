@@ -4,12 +4,11 @@ import { ITEM_CLASSES } from './items.js';
 import { Particle } from './particle.js';
 import { FlyingItemAnimation } from './flying-item-animation.js';
 
-const SHOE_CHANCE = 1; // sock pairing disabled for now; every screen is shoes
+const SHOE_CHANCE = 0.5;
 
 function getRandomX() { return 100 + Math.random() * (state.width - 280); }
 function getRandomY() { return 120 + Math.random() * (state.height - 280); }
 
-// Sock pairing is temporarily disabled: every screen pairs shoes.
 function pickItemType(_screenNumber) {
   return Math.random() < SHOE_CHANCE ? 'shoe' : 'sock';
 }
