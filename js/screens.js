@@ -1,4 +1,4 @@
-import { state, BAG, PAIR_BOX, BASKET } from './state.js';
+import { state, BAG, PAIR_BOX, BASKET, ITEM_SCALE } from './state.js';
 import { COLORS, PATTERNS } from './constants.js';
 import { ITEM_CLASSES } from './items.js';
 import { Particle } from './particle.js';
@@ -6,8 +6,20 @@ import { FlyingItemAnimation } from './flying-item-animation.js';
 
 const SHOE_CHANCE = 0.5;
 
-function getRandomX() { return 100 + Math.random() * (state.width - 280); }
-function getRandomY() { return 120 + Math.random() * (state.height - 280); }
+// Margins scale with the item size (bigger on touch devices) and shrink
+// on narrow screens so the spawn area doesn't collapse to a sliver.
+function getRandomX() {
+  const margin = Math.min(100, state.width * 0.22) * ITEM_SCALE;
+  const min = margin;
+  const max = Math.max(min + 60, state.width - margin);
+  return min + Math.random() * (max - min);
+}
+function getRandomY() {
+  const margin = Math.min(120, state.height * 0.16) * ITEM_SCALE;
+  const min = margin;
+  const max = Math.max(min + 60, state.height - margin - 40);
+  return min + Math.random() * (max - min);
+}
 
 function pickItemType(_screenNumber) {
   return Math.random() < SHOE_CHANCE ? 'shoe' : 'sock';

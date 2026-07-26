@@ -1,4 +1,5 @@
 import { Item } from './item.js';
+import { ITEM_SCALE } from './state.js';
 
 function darken(hex, amount) {
   const num = parseInt(hex.slice(1), 16);
@@ -11,7 +12,7 @@ function darken(hex, amount) {
 export class Shoe extends Item {
   constructor(id, color, pattern, targetX, targetY, delayFrames = 0) {
     super('shoe', id, color, pattern, targetX, targetY, delayFrames);
-    this.hitRadius = 44;
+    this.hitRadius = 44 * ITEM_SCALE;
     this.isRightFoot = Math.random() < 0.5;
     // Derived from color (not randomized) so a matched pair renders identically.
     this.accentColor = darken(color, 40);

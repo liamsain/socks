@@ -1,4 +1,4 @@
-import { ctx, state, BAG, PAIR_BOX, BASKET } from './state.js';
+import { ctx, state, BAG, PAIR_BOX, BASKET, getBagOverlayBox } from './state.js';
 import { ITEM_CLASSES } from './items.js';
 
 function drawBagGraphic(x, y, w, h) {
@@ -171,16 +171,15 @@ function drawBagOverlay() {
   ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
   ctx.fillRect(0, 0, state.width, state.height);
 
-  const startX = state.width / 2 - 175;
-  const startY = state.height / 2 - 120;
+  const { x: startX, y: startY, w: boxW, h: boxH } = getBagOverlayBox();
   ctx.fillStyle = '#ffffff';
-  ctx.fillRect(startX, startY, 350, 240);
+  ctx.fillRect(startX, startY, boxW, boxH);
   ctx.strokeStyle = '#2c3e50';
-  ctx.strokeRect(startX, startY, 350, 240);
+  ctx.strokeRect(startX, startY, boxW, boxH);
 
   ctx.fillStyle = '#2c3e50';
   ctx.font = 'bold 16px sans-serif';
-  ctx.fillText('Spare Bag (Click an item to pull it out)', startX + 15, startY + 30);
+  ctx.fillText('Tap an item to pull it out', startX + 15, startY + 30);
 
   state.bagItems.forEach((item, i) => {
     const sx = startX + (i % 5) * 60 + 40;
@@ -195,13 +194,15 @@ function drawPairsOverlay() {
   ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
   ctx.fillRect(0, 0, state.width, state.height);
 
-  const startX = state.width / 2 - 200;
-  const startY = state.height / 2 - 150;
+  const boxW = Math.min(400, state.width - 30);
+  const boxH = Math.min(300, state.height - 30);
+  const startX = state.width / 2 - boxW / 2;
+  const startY = state.height / 2 - boxH / 2;
   ctx.fillStyle = '#ffffff';
-  ctx.fillRect(startX, startY, 400, 300);
+  ctx.fillRect(startX, startY, boxW, boxH);
   ctx.strokeStyle = '#27ae60';
   ctx.lineWidth = 3;
-  ctx.strokeRect(startX, startY, 400, 300);
+  ctx.strokeRect(startX, startY, boxW, boxH);
 
   ctx.fillStyle = '#2c3e50';
   ctx.font = 'bold 18px sans-serif';

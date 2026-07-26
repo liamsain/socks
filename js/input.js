@@ -1,21 +1,22 @@
-import { state, BAG, PAIR_BOX } from './state.js';
+import { state, BAG, PAIR_BOX, ITEM_SCALE, getBagOverlayBox } from './state.js';
 import { triggerMatchEffect, checkScreenCompletion } from './screens.js';
 
-window.addEventListener('mousedown', e => {
-  const mx = e.clientX;
-  const my = e.clientY;
-  state.mousePos = { x: mx, y: my };
+// Bigger fingers need bigger tap/drop targets than a mouse cursor does.
+const BAG_ITEM_TAP_RADIUS = 30 * ITEM_SCALE;
+const MATCH_DISTANCE = 45 * ITEM_SCALE;
+
+function pointerDown(px, py) {
+  state.mousePos = { x: px, y: py };
 
   if (state.showingPairsOverlay || state.showingBagOverlay) {
     if (state.showingBagOverlay) {
-      const startX = state.width / 2 - 175;
-      const startY = state.height / 2 - 120;
+      const { x: startX, y: startY } = getBagOverlayBox();
       state.bagItems.forEach((item, i) => {
         const sx = startX + (i % 5) * 60 + 40;
         const sy = startY + Math.floor(i / 5) * 70 + 70;
-        if (Math.hypot(mx - sx, my - sy) < 30) {
-          item.x = mx;
-          item.y = my;
+        if (Math.hypot(px - sx, py - sy) < BAG_ITEM_TAP_RADIUS) {
+          item.x = px;
+          item.y = py;
           item.isSpawining = false;
           state.items.push(item);
           state.bagItems.splice(i, 1);
@@ -30,36 +31,36 @@ window.addEventListener('mousedown', e => {
   }
 
   // Clicked Paired Box
-  if (mx >= PAIR_BOX.x && mx <= PAIR_BOX.x + PAIR_BOX.w && my >= PAIR_BOX.y && my <= PAIR_BOX.y + PAIR_BOX.h) {
+  if (px >= PAIR_BOX.x && px <= PAIR_BOX.x + PAIR_BOX.w && py >= PAIR_BOX.y && py <= PAIR_BOX.y + PAIR_BOX.h) {
     state.showingPairsOverlay = true;
     return;
   }
 
   // Clicked Spare Bag
-  if (mx >= BAG.x && mx <= BAG.x + BAG.w && my >= BAG.y && my <= BAG.y + BAG.h) {
+  if (px >= BAG.x && px <= BAG.x + BAG.w && py >= BAG.y && py <= BAG.y + BAG.h) {
     if (state.bagItems.length > 0) state.showingBagOverlay = true;
     return;
   }
 
   // Pickup top-most item
   for (let i = state.items.length - 1; i >= 0; i--) {
-    if (state.items[i].isPointInside(mx, my)) {
+    if (state.items[i].isPointInside(px, py)) {
       state.draggedItem = state.items[i];
-      state.dragOffset.x = mx - state.draggedItem.x;
-      state.dragOffset.y = my - state.draggedItem.y;
+      state.dragOffset.x = px - state.draggedItem.x;
+      state.dragOffset.y = py - state.draggedItem.y;
       state.items.splice(i, 1);
       state.items.push(state.draggedItem);
       break;
     }
   }
-});
+}
 
-window.addEventListener('mousemove', e => {
-  state.mousePos.x = e.clientX;
-  state.mousePos.y = e.clientY;
-});
+function pointerMove(px, py) {
+  state.mousePos.x = px;
+  state.mousePos.y = py;
+}
 
-window.addEventListener('mouseup', () => {
+function pointerUp() {
   const draggedItem = state.draggedItem;
   if (!draggedItem) return;
 
@@ -76,7 +77,7 @@ window.addEventListener('mouseup', () => {
   // Check collision with other items
   for (let i = 0; i < state.items.length; i++) {
     const target = state.items[i];
-    if (target !== draggedItem && !target.isSpawining && Math.hypot(draggedItem.x - target.x, draggedItem.y - target.y) < 45) {
+    if (target !== draggedItem && !target.isSpawining && Math.hypot(draggedItem.x - target.x, draggedItem.y - target.y) < MATCH_DISTANCE) {
       if (draggedItem.matches(target)) {
         state.pairedCount++;
         state.matchedPairs.push(draggedItem);
@@ -91,4 +92,27 @@ window.addEventListener('mouseup', () => {
   }
 
   state.draggedItem = null;
-});
+}
+
+window.addEventListener('mousedown', e => pointerDown(e.clientX, e.clientY));
+window.addEventListener('mousemove', e => pointerMove(e.clientX, e.clientY));
+window.addEventListener('mouseup', () => pointerUp());
+
+// Touch support: mirror the mouse handlers off the first touch point.
+// preventDefault stops the page from scrolling/zooming while dragging.
+window.addEventListener('touchstart', e => {
+  e.preventDefault();
+  const touch = e.touches[0];
+  if (touch) pointerDown(touch.clientX, touch.clientY);
+}, { passive: false });
+
+window.addEventListener('touchmove', e => {
+  e.preventDefault();
+  const touch = e.touches[0];
+  if (touch) pointerMove(touch.clientX, touch.clientY);
+}, { passive: false });
+
+window.addEventListener('touchend', e => {
+  e.preventDefault();
+  pointerUp();
+}, { passive: false });

@@ -6,6 +6,11 @@
 export const canvas = document.getElementById('gameCanvas');
 export const ctx = canvas.getContext('2d');
 
+// Coarse pointers (touch) get bigger items so they're easier to grab and
+// drag with a finger, which is much less precise than a mouse cursor.
+export const IS_TOUCH_DEVICE = window.matchMedia('(pointer: coarse)').matches;
+export const ITEM_SCALE = IS_TOUCH_DEVICE ? 1.5 : 1;
+
 export const state = {
   width: 0,
   height: 0,
@@ -40,3 +45,12 @@ resize();
 export const BAG = { x: 40, y: state.height - 150, w: 100, h: 110 };
 export const PAIR_BOX = { x: state.width - 170, y: 20, w: 150, h: 55 };
 export const BASKET = { x: state.width - 140, y: state.height - 130, w: 110, h: 90 };
+
+// Shared layout for the "spare bag" modal so render.js (drawing) and
+// input.js (hit-testing tapped items) always agree on where it sits,
+// even after it shrinks to fit a narrow phone screen.
+export function getBagOverlayBox() {
+  const w = Math.min(350, state.width - 30);
+  const h = Math.min(240, state.height - 30);
+  return { x: state.width / 2 - w / 2, y: state.height / 2 - h / 2, w, h };
+}

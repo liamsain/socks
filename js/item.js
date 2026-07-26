@@ -1,4 +1,4 @@
-import { BASKET } from './state.js';
+import { BASKET, ITEM_SCALE } from './state.js';
 
 // Shared behavior for anything the player can throw, drag, and pair up
 // (socks, shoes, ...). Subclasses implement drawShape() for their own
@@ -28,7 +28,7 @@ export class Item {
     this.y = this.startY;
     this.rotation = Math.random() * Math.PI * 4;
 
-    this.hitRadius = 35;
+    this.hitRadius = 35 * ITEM_SCALE;
   }
 
   matches(other) {
@@ -66,7 +66,7 @@ export class Item {
     this.rotation = t * Math.PI * 4 + this.targetRotation;
   }
 
-  draw(context, customX = this.x, customY = this.y, scale = 1, rotation = this.rotation) {
+  draw(context, customX = this.x, customY = this.y, scale = ITEM_SCALE, rotation = this.rotation) {
     context.save();
     context.translate(customX, customY);
     context.rotate(rotation);
